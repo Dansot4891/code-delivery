@@ -3,6 +3,7 @@ import 'package:authentication/common/const/data.dart';
 import 'package:authentication/common/layout/default_layout.dart';
 import 'package:authentication/common/view/root_tab.dart';
 import 'package:authentication/user/view/login_screen.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -19,27 +20,37 @@ class _SplashScreenState extends State<SplashScreen> {
     // deleteToken();
     checkToken();
   }
-  
+
   void deleteToken() async {
     await storage.deleteAll();
   }
 
-  void checkToken() async{
+  void checkToken() async {
     final refreshToken = await storage.read(key: REFRESH_TOKEN_KEY);
     final accessToken = await storage.read(key: ACCESS_TOKEN_KEY);
+    final dio = Dio();
 
-    if(refreshToken == null || accessToken == null){
-      Navigator.of(context).pushAndRemoveUntil(
-        MaterialPageRoute(builder: (_) => LoginScreen(),
+    try {
+      final resp = await dio.post(
+        'http://$ip/auth/token',
+        options: Options(
+          headers: {
+            'authorization': 'Bearer $refreshToken',
+          },
         ),
-      (route) => false
       );
-    }else{
+
       Navigator.of(context).pushAndRemoveUntil(
-        MaterialPageRoute(builder: (_) => RootTab(),
-        ),
-      (route) => false
-      );
+          MaterialPageRoute(
+            builder: (_) => RootTab(),
+          ),
+          (route) => false);
+    } catch (e) {
+      Navigator.of(context).pushAndRemoveUntil(
+          MaterialPageRoute(
+            builder: (_) => LoginScreen(),
+          ),
+          (route) => false);
     }
   }
 
@@ -51,16 +62,19 @@ class _SplashScreenState extends State<SplashScreen> {
           width: MediaQuery.of(context).size.width,
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-          Image.asset('asset/img/logo/logo.png',
-          width: MediaQuery.of(context).size.width / 2,
-          ),
-          const SizedBox(height: 16,),
-          CircularProgressIndicator(
-            color: Colors.white,
-          )
-                ],
+            children: [
+              Image.asset(
+                'asset/img/logo/logo.png',
+                width: MediaQuery.of(context).size.width / 2,
               ),
+              const SizedBox(
+                height: 16,
+              ),
+              CircularProgressIndicator(
+                color: Colors.white,
+              )
+            ],
+          ),
         ));
   }
 }
