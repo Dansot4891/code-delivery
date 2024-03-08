@@ -1,6 +1,7 @@
 import 'package:authentication/common/const/data.dart';
 import 'package:authentication/restaurant/component/restaurant_card.dart';
 import 'package:authentication/restaurant/model/restaurant_model.dart';
+import 'package:authentication/restaurant/view/restaurant_detail_screen.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 
@@ -30,7 +31,9 @@ class RestaurantScreen extends StatelessWidget {
                 future: paginateRestaurant(),
                 builder: (context, AsyncSnapshot<List> snapshot) {
                   if (!snapshot.hasData) {
-                    return Container();
+                    return Center(
+                      child: CircularProgressIndicator(),
+                    );
                   }
                   return ListView.separated(
                     itemCount: snapshot.data!.length,
@@ -43,8 +46,17 @@ class RestaurantScreen extends StatelessWidget {
                       final item = snapshot.data![index];
                       //parsed
                       final pitem = RestaurantModel.fromJson(json: item);
-                      return RestaurantCard.fromModel(
-                        model: pitem,
+                      return GestureDetector(
+                        onTap: () {
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (_) => RestaurantDetailScreen(id: pitem.id,),
+                            ),
+                          );
+                        },
+                        child: RestaurantCard.fromModel(
+                          model: pitem,
+                        ),
                       );
                     },
                   );
