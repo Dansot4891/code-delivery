@@ -1,6 +1,4 @@
-import 'package:authentication/common/component/textformfield.dart';
 import 'package:authentication/common/view/splash_screen.dart';
-import 'package:authentication/user/view/login_screen.dart';
 import 'package:flutter/material.dart';
 
 void main() {

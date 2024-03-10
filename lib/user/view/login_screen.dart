@@ -8,7 +8,6 @@ import 'package:authentication/common/layout/default_layout.dart';
 import 'package:authentication/common/view/root_tab.dart';
 import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
