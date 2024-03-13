@@ -1,42 +1,49 @@
 // Dio는 여러가지 기능 제공
-
 import 'package:authentication/common/const/data.dart';
+import 'package:authentication/common/secure_storage/secure_storage.dart';
 import 'package:dio/dio.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
-class CustomInterceptor extends Interceptor{
+final dioProvider = Provider<Dio>((ref) {
+  final dio = Dio();
+
+  final storage = ref.watch(secureStorageProvider);
+
+  dio.interceptors.add(
+    CustomInterceptor(storage: storage),
+  );
+
+  return dio;
+});
+
+class CustomInterceptor extends Interceptor {
   final FlutterSecureStorage storage;
 
-  CustomInterceptor({
-    required this.storage
-  });
+  CustomInterceptor({required this.storage});
 
   // 1) 요청을 보낼 때
   @override
-  void onRequest(RequestOptions options, RequestInterceptorHandler handler) async {
-    
-    if(options.headers['accessToken'] == 'true'){
+  void onRequest(
+      RequestOptions options, RequestInterceptorHandler handler) async {
+    if (options.headers['accessToken'] == 'true') {
       // 헤더 삭제
       options.headers.remove('accessToken');
 
       final token = await storage.read(key: ACCESS_TOKEN_KEY);
 
       // 실제 토큰으로 대체
-      options.headers.addAll({
-        'authorization' : 'Bearer $token'
-      });
+      options.headers.addAll({'authorization': 'Bearer $token'});
     }
 
-    if(options.headers['refreshToken'] == 'true'){
+    if (options.headers['refreshToken'] == 'true') {
       // 헤더 삭제
       options.headers.remove('refreshToken');
 
       final token = await storage.read(key: REFRESH_TOKEN_KEY);
 
       // 실제 토큰으로 대체
-      options.headers.addAll({
-        'authorization' : 'Bearer $token'
-      });
+      options.headers.addAll({'authorization': 'Bearer $token'});
     }
 
     // super.onRequest(options, handler); 이거 반환값이 void여서 가능
@@ -49,7 +56,7 @@ class CustomInterceptor extends Interceptor{
     print('[RES] [${response.requestOptions}] ${response.requestOptions.uri}');
     return super.onResponse(response, handler);
   }
-  
+
   // 3) 에러가 났을 때
   @override
   void onError(DioException err, ErrorInterceptorHandler handler) async {
@@ -62,7 +69,7 @@ class CustomInterceptor extends Interceptor{
 
     // refreshToken이 없으면
     // 에러를 던진다
-    if(refreshToken == null){
+    if (refreshToken == null) {
       // 에러를 던질 때는 handler.reject 사용
       return handler.reject(err);
     }
@@ -70,15 +77,15 @@ class CustomInterceptor extends Interceptor{
     final isStatus401 = err.response?.statusCode == 401;
     final isPathRefresh = err.requestOptions.path == '/auth/token';
 
-    if(isStatus401 && !isPathRefresh){
+    if (isStatus401 && !isPathRefresh) {
       final dio = Dio();
 
-      try{
+      try {
         final resp = await dio.post(
           'http://$ip/auth/token',
           options: Options(
             headers: {
-              'authorization' : 'Bearer $refreshToken',
+              'authorization': 'Bearer $refreshToken',
             },
           ),
         );
@@ -90,20 +97,19 @@ class CustomInterceptor extends Interceptor{
 
         // 토큰 변경하기
         options.headers.addAll({
-          'authorization' : 'Bearer $accessToken',
+          'authorization': 'Bearer $accessToken',
         });
 
         await storage.write(key: ACCESS_TOKEN_KEY, value: accessToken);
 
-        // 요청 재전송 
+        // 요청 재전송
         final response = await dio.fetch(options);
 
         return handler.resolve(response);
-      } catch(e){
+      } catch (e) {
         return handler.reject(err);
-      } 
+      }
     }
     return handler.reject(err);
   }
-  
 }
