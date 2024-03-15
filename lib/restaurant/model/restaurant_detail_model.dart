@@ -6,7 +6,7 @@ import 'package:json_annotation/json_annotation.dart';
 part 'restaurant_detail_model.g.dart';
 
 @JsonSerializable()
-class RestaurantDetailModel extends RestaurantModel {
+class RestaurantDetailModel extends RestaurantModel{
   final String detail;
   final List<RestaurantProduectModel> products;
 
