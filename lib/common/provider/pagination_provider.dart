@@ -5,12 +5,16 @@ import 'package:authentication/common/repository/base_pagination_repository.dart
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 // 다트에서 Generic에서는 implements 사용 불가능함
-class PaginationProvider<T extends IModelWithId, U extends IBasePaginationRepository<T>> extends StateNotifier<CursorPaginationBase>{
+class PaginationProvider<T extends IModelWithId,
+        U extends IBasePaginationRepository<T>>
+    extends StateNotifier<CursorPaginationBase> {
   final U repository;
 
   PaginationProvider({
     required this.repository,
-  }) : super(CursorPaginationLoading());
+  }) : super(CursorPaginationLoading()) {
+    paginate();
+  }
 
   Future<void> paginate({
     int fetchCount = 20,
@@ -77,8 +81,8 @@ class PaginationProvider<T extends IModelWithId, U extends IBasePaginationReposi
         // 기존 데이터를 보존한채로 Fetch (API 요청)를 진행
         if (state is CursorPagination && !forceRefetch) {
           final pState = state as CursorPagination<T>;
-          state =
-              CursorPaginationRefetching<T>(meta: pState.meta, data: pState.data);
+          state = CursorPaginationRefetching<T>(
+              meta: pState.meta, data: pState.data);
         }
         // 나머지 상황
         else {
@@ -95,11 +99,16 @@ class PaginationProvider<T extends IModelWithId, U extends IBasePaginationReposi
 
         // 기존 데이터에
         // 새로운 데이터 추가
-        state = resp.copyWith(data: [...pState.data, ...resp.data]);
+        state = resp.copyWith(data: [
+          ...pState.data,
+          ...resp.data,
+        ]);
       } else {
         state = resp;
       }
-    } catch (e) {
+    } catch (e, stack) {
+      print(e);
+      print(stack);
       state = CursorPaginationError(message: '데이터를 가져오지 못했습니다.');
     }
   }

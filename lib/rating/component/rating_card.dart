@@ -1,4 +1,5 @@
 import 'package:authentication/common/const/colors.dart';
+import 'package:authentication/rating/model/rating_model.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
@@ -26,6 +27,18 @@ class RatingCard extends StatelessWidget {
     super.key,
   });
 
+  factory RatingCard.fromModel({
+    required RatingModel model,
+  }) {
+    return RatingCard(
+      avatarimage: NetworkImage(model.user.imageUrl),
+      images: model.imgUrls.map((e) => Image.network(e)).toList(),
+      rating: model.rating,
+      email: model.user.username,
+      content: model.content,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -41,13 +54,16 @@ class RatingCard extends StatelessWidget {
         _Body(
           content: content,
         ),
-        if(images.length > 0)
-        SizedBox(
-          height: 100,
-          child: _Images(
-            images: images,
+        if (images.length > 0)
+          Padding(
+            padding: const EdgeInsets.only(top: 8),
+            child: SizedBox(
+              height: 100,
+              child: _Images(
+                images: images,
+              ),
+            ),
           ),
-        ),
       ],
     );
   }
@@ -138,7 +154,8 @@ class _Images extends StatelessWidget {
       children: images
           .mapIndexed(
             (index, e) => Padding(
-              padding: EdgeInsets.only(right : index == images.length - 1 ? 0 : 16),
+              padding:
+                  EdgeInsets.only(right: index == images.length - 1 ? 0 : 16),
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(8),
                 child: e,
