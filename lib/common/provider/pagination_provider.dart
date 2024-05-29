@@ -5,9 +5,7 @@ import 'package:authentication/common/repository/base_pagination_repository.dart
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 // 다트에서 Generic에서는 implements 사용 불가능함
-class PaginationProvider<T extends IModelWithId,
-        U extends IBasePaginationRepository<T>>
-    extends StateNotifier<CursorPaginationBase> {
+class PaginationProvider<T extends IModelWithId,U extends IBasePaginationRepository<T>>extends StateNotifier<CursorPaginationBase> {
   final U repository;
 
   PaginationProvider({

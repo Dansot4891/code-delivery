@@ -1,4 +1,5 @@
 import 'package:authentication/common/const/colors.dart';
+import 'package:authentication/product/model/product_model.dart';
 import 'package:authentication/restaurant/model/restaurant_detail_model.dart';
 import 'package:flutter/material.dart';
 
@@ -16,7 +17,23 @@ class ProductCard extends StatelessWidget {
     super.key,
   });
 
-  factory ProductCard.fromModel({
+  factory ProductCard.fromProductModel({
+    required ProductModel model,
+  }){
+    return ProductCard(
+        name: model.name,
+        image: Image.network(
+          model.imgUrl,
+          width: 110,
+          height: 110,
+          fit: BoxFit.cover,
+        ),
+        detail: model.detail,
+        price: model.price,
+    );
+  }
+
+  factory ProductCard.fromRestaurantProductModel({
     required RestaurantProduectModel model,
   }) {
     return ProductCard(
