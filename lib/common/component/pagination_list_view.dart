@@ -90,35 +90,43 @@ class _PaginationListViewState<T extends IModelWithId> extends ConsumerState<Pag
 
     return Padding(
       padding: const EdgeInsets.all(16.0),
-      child: ListView.separated(
-        controller: controller,
-        itemCount: cp.data.length + 1,
-        separatorBuilder: (_, index) {
-          return SizedBox(
-            height: 16,
+      child: RefreshIndicator(
+        onRefresh: () async {
+          ref.read(widget.provider.notifier).paginate(
+            forceRefetch: true,
           );
         },
-        itemBuilder: (_, index) {
-          if (index == cp.data.length) {
-            return Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 16,
-                vertical: 8,
-              ),
-              child: Center(
-                child: cp is CursorPaginationFetchingMore
-                    ? CircularProgressIndicator()
-                    : Text("마지막 데이터 입니다."),
-              ),
+        child: ListView.separated(
+          physics: AlwaysScrollableScrollPhysics(),
+          controller: controller,
+          itemCount: cp.data.length + 1,
+          separatorBuilder: (_, index) {
+            return SizedBox(
+              height: 16,
             );
-          }
-          final pitem = cp.data[index];
-          return widget.itemBuilder(
-            context,
-            index,
-            pitem,
-          );
-        },
+          },
+          itemBuilder: (_, index) {
+            if (index == cp.data.length) {
+              return Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 8,
+                ),
+                child: Center(
+                  child: cp is CursorPaginationFetchingMore
+                      ? CircularProgressIndicator()
+                      : Text("마지막 데이터 입니다."),
+                ),
+              );
+            }
+            final pitem = cp.data[index];
+            return widget.itemBuilder(
+              context,
+              index,
+              pitem,
+            );
+          },
+        ),
       ),
     );
   }

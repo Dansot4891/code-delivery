@@ -1,12 +1,9 @@
-import 'dart:convert';
 import 'dart:io';
-
 import 'package:authentication/common/component/textformfield.dart';
 import 'package:authentication/common/const/colors.dart';
-import 'package:authentication/common/const/data.dart';
 import 'package:authentication/common/layout/default_layout.dart';
-import 'package:authentication/common/secure_storage/secure_storage.dart';
-import 'package:authentication/common/view/root_tab.dart';
+import 'package:authentication/user/model/user_model.dart';
+import 'package:authentication/user/provider/user_me_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -24,12 +21,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   String password = '';
   @override
   Widget build(BuildContext context) {
-    final dio = Dio();
 
-    final emulatorIp = '10.0.2.2:3000';
-    final simulatorIp = '127.0.0.1:3000';
-    final ip = Platform.isIOS ? simulatorIp : emulatorIp;
-    
+    final state = ref.watch(userMeProvider);
 
     return DefaultLayout(
       child: SingleChildScrollView(
@@ -69,34 +62,36 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 Container(
                   width: double.infinity,
                   child: ElevatedButton(
-                    onPressed: () async {
+                    onPressed: state is UserModelLoading ? null : () async {
+                      ref.read(userMeProvider.notifier).login(username: username, password: password);
+
                       //아이디:비밀번호
-                      final rawString = '$username:$password';
+                      // final rawString = '$username:$password';
                       
-                      //base64로 변환하는 코드
-                      Codec<String, String> stringToBase64 = utf8.fuse(base64);
+                      // //base64로 변환하는 코드
+                      // Codec<String, String> stringToBase64 = utf8.fuse(base64);
                       
-                      String token = stringToBase64.encode(rawString);
+                      // String token = stringToBase64.encode(rawString);
 
-                      final resp = await dio.post('http://$ip/auth/login',
-                        options: Options(
-                          headers: {
-                            'authorization' : 'Basic $token',
-                          }
-                        )
-                      );
+                      // final resp = await dio.post('http://$ip/auth/login',
+                      //   options: Options(
+                      //     headers: {
+                      //       'authorization' : 'Basic $token',
+                      //     }
+                      //   )
+                      // );
                       
-                      final refreshToken = resp.data['refreshToken'];
-                      final accessToken = resp.data['accessToken'];
+                      // final refreshToken = resp.data['refreshToken'];
+                      // final accessToken = resp.data['accessToken'];
 
-                      final storage = ref.read(secureStorageProvider);
+                      // final storage = ref.read(secureStorageProvider);
 
-                      await storage.write(key: REFRESH_TOKEN_KEY, value: refreshToken);
-                      await storage.write(key: ACCESS_TOKEN_KEY, value: accessToken);
+                      // await storage.write(key: REFRESH_TOKEN_KEY, value: refreshToken);
+                      // await storage.write(key: ACCESS_TOKEN_KEY, value: accessToken);
 
-                      Navigator.of(context).push(
-                        MaterialPageRoute(builder: (_) => RootTab())
-                      );
+                      // Navigator.of(context).push(
+                      //   MaterialPageRoute(builder: (_) => RootTab())
+                      // );
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: PRIMARY_COLOR

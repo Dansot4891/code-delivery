@@ -1,9 +1,11 @@
 import 'package:authentication/common/view/root_tab.dart';
 import 'package:authentication/common/view/splash_screen.dart';
+import 'package:authentication/order/view/order_done_screen.dart';
+import 'package:authentication/restaurant/view/basket_screen.dart';
 import 'package:authentication/restaurant/view/restaurant_detail_screen.dart';
 import 'package:authentication/user/provider/user_me_provider.dart';
 import 'package:authentication/user/view/login_screen.dart';
-import 'package:authentication/user/view/model/user_model.dart';
+import 'package:authentication/user/model/user_model.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -25,12 +27,13 @@ class AuthProvider extends ChangeNotifier{
 
   List<GoRoute> get routes => [
     GoRoute(
-      path: '/home',
+      path: '/',
       name: RootTab.routeName,
       builder: (_, __) => RootTab(),
       routes: [
         GoRoute(
           path: 'restaurant/:rid',
+          name: RestaurantDetailScreen.routeName,
           builder: (_, state) => RestaurantDetailScreen(id: state.pathParameters['rid']!,),
         ),
       ]
@@ -45,8 +48,21 @@ class AuthProvider extends ChangeNotifier{
       name: LoginScreen.routeName,
       builder: (_, __) => LoginScreen(),
     ),
-    
+    GoRoute(
+      path: '/basket',
+      name: BasketScreen.routeName,
+      builder: (_, __) => BasketScreen()
+    ),
+    GoRoute(
+      path: '/order_done',
+      name: OrderDoneScreen.routeName,
+      builder: (_, __) => OrderDoneScreen()
+    ),
   ];
+
+  void logout(){
+    ref.read(userMeProvider.notifier).logout();
+  }
 
   // Splash Screen
   // 앱을 처음 시작했을 때
@@ -55,7 +71,6 @@ class AuthProvider extends ChangeNotifier{
   // 홈 스크린으로 보내줄지 확인하는 과정이 필요하다.
   String? redirectLogic(GoRouterState state){
     final UserModelBase? user = ref.read(userMeProvider);
-
     final logginIn = state.location == '/login';
 
     // 유저 정보가 없는데

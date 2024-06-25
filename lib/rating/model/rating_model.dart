@@ -1,6 +1,6 @@
 import 'package:authentication/common/model/model_with_id.dart';
 import 'package:authentication/common/utils/data_utils.dart';
-import 'package:authentication/user/view/model/user_model.dart';
+import 'package:authentication/user/model/user_model.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 part 'rating_model.g.dart';
